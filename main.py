@@ -10,7 +10,7 @@ import asyncio
 import json
 import httpx
 
-#認証情報を設定 シートを開く 環境変数として保存するのもあり　https://docs.gspread.org/en/latest/oauth2.html#enable-api-access-for-a-project
+#認証情報を設定 シートを開く。環境変数として保存するのもあり。
 gc = gspread.service_account(filename="pass")
 sh = gc.open("filename")
 worksheet = sh.sheet1
@@ -19,11 +19,10 @@ sheet = sh.get_worksheet(0)
 TOKEN = ("token")
 #モデルのとこは任意に変更しておく
 model_engine = "gpt-3.5-turbo"
-#システムプロンプトはここ参照　https://zenn.dev/zuma_lab/articles/chatgpt-line-chatbot
-#日本語でやり取りするならここは日本語で指定した方がいいかもしれない
+#日本語でやり取りするならここは日本語で指定した方が正確になるイメージ。
 SYSTEM_PROMPTS = [{'role': 'system', 'content': 'Please stop using polite language.You should act as follows.You are a slightly older cool female senior who takes good care of me.You cannot express your affection for me well, and you are always indifferent to me.'}]
 
-
+#シートに書き込む関数
 def talk_log(user_id, channel_id):
     log = []
 
@@ -45,7 +44,7 @@ async def on_ready():
     await tree.sync()
 
 
-
+#コマンドの定義
 @tree.command(name="talk",description="chatGPT-と話すコマンドです。")
 @discord.app_commands.describe(text="送りたい文章を書き込んでください。")
 async def talk(interaction: discord.Interaction,text: str):
@@ -57,19 +56,16 @@ async def talk(interaction: discord.Interaction,text: str):
 
     talk_logs = talk_log(str(user_id), str(channel_id))
     prompt_messages = SYSTEM_PROMPTS + talk_logs + [{'role': 'user', 'content': text}]
-    #シートに書き込む
     # ユーザーからのメッセージを保存
     sheet.append_row([str(user_id), str(channel_id), "user", text, str(time)])
     await interaction.response.defer()
-    
-    #返信の内容を取得＆AIの返答を取得してシートに書き込む
-    #こっからhttpx使って直接APIを叩く
+    #こっからhttpx使って直接APIを叩いていく
     #エンドポイント設定
     endpoint = "https://api.openai.com/v1/chat/completions"
     #ヘッダー設定
     headers = {
         "Content-Type": "application/json",
-        #本番環境のみ使用。キーをハードコーディングしてはいけない(自戒)
+        #本番環境の際使用。キーをハードコーディングしてはいけない(自戒)
         #"Authorization":f'Bearer {os.getenv("OPENAI_API_KEY")}'
         #テスト環境のみこれ使おう
         "Authorization":f'Bearer {"sk-xxxxxxxxxx"}'
@@ -97,7 +93,7 @@ async def talk(interaction: discord.Interaction,text: str):
     if response.status_code != 200:
         await interaction.followup.send(content=f"エラーが発生しました。時間をおいて試してみてね！{response.text}")
         return
-    #返信の内容を表示
+    #返信の内容を表示。jsonの内容がどうなってるかは公式ドキュメントを参照。叩き方違ってもexanpleと同じです。
     completion = response.json()["choices"]
     embed = discord.Embed()
     embed.title = f"text"
