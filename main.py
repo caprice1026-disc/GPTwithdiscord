@@ -20,6 +20,7 @@ TOKEN = ("token")
 #モデルのとこは任意に変更しておく
 model_engine = "gpt-3.5-turbo"
 #システムプロンプトはここ参照　https://zenn.dev/zuma_lab/articles/chatgpt-line-chatbot
+#日本語でやり取りするならここは日本語で指定した方がいいかもしれない
 SYSTEM_PROMPTS = [{'role': 'system', 'content': 'Please stop using polite language.You should act as follows.You are a slightly older cool female senior who takes good care of me.You cannot express your affection for me well, and you are always indifferent to me.'}]
 
 
@@ -63,15 +64,15 @@ async def talk(interaction: discord.Interaction,text: str):
     #タイムアウトを設定してもよいかもしれない
     
     #返信の内容を取得＆AIの返答を取得してシートに書き込む
-
+    #こっからhttpx使って直接APIを叩く
     #エンドポイント設定
     endpoint = "https://api.openai.com/v1/chat/completions"
     #ヘッダー設定
     headers = {
         "Content-Type": "application/json",
-        #本番環境のみ
+        #本番環境のみ使用。キーをハードコーディングしてはいけない(自戒)
         #"Authorization":f'Bearer {os.getenv("OPENAI_API_KEY")}'
-        #テスト環境のみ
+        #テスト環境のみこれ使おう
         "Authorization":f'Bearer {"sk-xxxxxxxxxx"}'
     }
 
@@ -87,13 +88,15 @@ async def talk(interaction: discord.Interaction,text: str):
     #送信とか例外処理とか
     try:
         async with httpx.AsyncClient() as client:
+            #タイムアウトを設定しないと大変なことになります
             response = await client.post(endpoint, headers=headers, json=payload, timeout=90)
             response.raise_for_status()
     except httpx.HTTPError as e:
         await interaction.followup.send(content=f"エラーが発生しました。時間をおいて試してみてね{e}")
         return
+    #リクエストのステータスが200番台以外なら全部これで処理する
     if response.status_code != 200:
-        await interaction.followup.send(content=f"エラーが発生しました。時間をおいて試してみてね{response.text}")
+        await interaction.followup.send(content=f"エラーが発生しました。時間をおいて試してみてね！{response.text}")
         return
     #返信の内容を表示
     completion = response.json()["choices"]
