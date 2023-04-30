@@ -16,6 +16,8 @@ https://docs.gspread.org/en/latest/oauth2.html#enable-api-access-for-a-project
 discordAPIのタイムアウトは死ぬほど短いです。こんにちはくらいの内容の返信くらいならなんとかなりますが非同期処理にしないと確実にタイムアウトしてエラーを起こします。asyncでsleepさせてようと思いましたがうまくいきませんでした。
 なのでhttpxを使用して直接APIを叩いています。LINEチャットbotとはちょっと違うAPIの叩き方になっているので注意が必要です。
 
+参考:https://zenn.dev/quojama/articles/730b9901769053
+
 無課金構成です。replit＋uptimerobot＋スプレッドシートに展開しています。金があるならスプレッドシートなんか使わずlambdaとdynamoDB使いましょう。その方が選択肢が増えます。
 
 
