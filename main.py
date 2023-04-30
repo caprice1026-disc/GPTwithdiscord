@@ -100,7 +100,12 @@ async def talk(interaction: discord.Interaction,text: str):
         return
     #返信の内容を表示
     completion = response.json()["choices"]
-    await interaction.followup.send(content=completion[0]["message"]["content"])
+    embed = discord.Embed()
+    embed.title = f"text"
+    embed.description = completion[0]["message"]["content"]
+    embed.set_footer(text="AIの返答")
+    embed.set_author(name="AIちゃんだよ！")
+    await interaction.followup.send(embed=embed)
     #シートに書き込む
     # AIの返答を保存
     sheet.append_row([str(user_id), str(channel_id), "assistant", completion[0]["message"]["content"]])
