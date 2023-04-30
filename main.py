@@ -61,7 +61,6 @@ async def talk(interaction: discord.Interaction,text: str):
     # ユーザーからのメッセージを保存
     sheet.append_row([str(user_id), str(channel_id), "user", text, str(time)])
     await interaction.response.defer()
-    #タイムアウトを設定してもよいかもしれない
     
     #返信の内容を取得＆AIの返答を取得してシートに書き込む
     #こっからhttpx使って直接APIを叩く
@@ -104,7 +103,7 @@ async def talk(interaction: discord.Interaction,text: str):
     embed.title = f"text"
     embed.description = completion[0]["message"]["content"]
     embed.set_footer(text="AIの返答")
-    embed.set_author(name="AIちゃんだよ！")
+    embed.set_author(name="AIちゃんだよ!")
     await interaction.followup.send(embed=embed)
     #シートに書き込む
     # AIの返答を保存
@@ -113,13 +112,3 @@ async def talk(interaction: discord.Interaction,text: str):
 
 
 client.run(TOKEN)
-
-#動くがコマンドが認識されない
-#コマンドを認識させるにはdiscord.ext.commands.Botを使う必要がある
-
-
-
-  
-'''参考文献として使用可能なもの
-https://www.twilio.com/ja/blog/an-easy-way-to-read-and-write-to-a-google-spreadsheet-in-python-jp
-''' 
